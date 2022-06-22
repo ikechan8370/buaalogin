@@ -1,14 +1,18 @@
 <template>
-  <login-main></login-main>
+  <n-message-provider>
+    <login-main></login-main>
+  </n-message-provider>
+
 </template>
 
 <script>
 import LoginMain from "./components/LoginMain.vue";
-
+import {NMessageProvider} from 'naive-ui'
 export default {
   name: 'App',
   components: {
     LoginMain,
+    NMessageProvider
   }
 }
 </script>

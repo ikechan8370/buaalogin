@@ -26,5 +26,7 @@ html,body,#app {
   color: #2c3e50;
   margin: auto;
   height: 100%;
+  overflow: hidden;
+  user-select: none;
 }
 </style>

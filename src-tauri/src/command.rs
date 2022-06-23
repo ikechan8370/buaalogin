@@ -35,14 +35,14 @@ pub async fn logout(username: String, ip: String) -> Result<Value> {
 }
 
 #[tauri::command]
-pub async fn login(username: String, password: String) -> Result<LoginResponse> {
+pub async fn login(username: String, password: String, client_ip: String) -> Result<LoginResponse> {
     let client = reqwest::ClientBuilder::new().no_proxy().build().unwrap();
     let start = time::SystemTime::now();
     let since_the_epoch = start
         .duration_since(UNIX_EPOCH)
         .expect("Time went backwards");
     let timestamp = since_the_epoch.as_millis();
-    let response = client.get(format!("https://gw.buaa.edu.cn/cgi-bin/get_challenge?callback=jQuery112403499023691859897_1655879182275&username={}&ip=10.135.150.220&_={}", username, timestamp))
+    let response = client.get(format!("https://gw.buaa.edu.cn/cgi-bin/get_challenge?callback=jQuery112403499023691859897_1655879182275&username={}&ip={}&_={}", username, client_ip, timestamp))
         .header("Host", "gw.buaa.edu.cn")
         .header("Accept", "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01")
         .header("DNT", "1")
@@ -57,7 +57,8 @@ pub async fn login(username: String, password: String) -> Result<LoginResponse> 
     let response = response.trim_start_matches("jQuery112403499023691859897_1655879182275(").trim_end_matches(")");
     let challenge: Challenge = serde_json::from_str(response).unwrap();
     println!("{}", challenge.challenge);
-    let login_url = build_login_url(username, password, challenge.client_ip.clone(), "Mac+OS".to_string(), format!("{}", since_the_epoch.as_millis()), challenge.challenge.clone());
+    let login_url = build_login_url(username, password, challenge.client_ip.clone(), "Mac+OS".to_string(), format!("{}", timestamp), challenge.challenge.clone());
+    println!("{}", login_url);
     let response = client.get(login_url)
         .header("Host", "gw.buaa.edu.cn")
         .header("Accept", "text/javascript, application/javascript, application/ecmascript, application/x-ecmascript, */*; q=0.01")

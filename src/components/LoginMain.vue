@@ -1,7 +1,7 @@
 <template>
   <div class="login-form">
     <div>
-      <img src="@/assets/img.png" style="width: 80%;margin-top: 20px"/>
+      <img src="@/assets/img.png" style="width: 70%;margin-top: 15px"/>
     </div>
     <div class="form" style="text-align: left">
       <n-form ref="formRef" :model="model" :rules="rules" label-placement="left" v-show="!has_login">
@@ -36,7 +36,7 @@
         <n-alert title="客户端信息" type="warning" :show-icon="false" style="opacity: 0.8">
           <div style="display: flex">
             <n-icon size="22" style="margin-top: 3px">
-              <wallet />
+              <cloud-checkmark16-filled />
             </n-icon>
             <div style="line-height: 28px;margin-left: 10px">
               在线ip: {{status.data.online_ip}}
@@ -79,11 +79,12 @@
 <script setup>
 import {onMounted, reactive, ref, watch} from "vue";
 import {NForm, NFormItem, NInput, NButton, NCheckboxGroup, NCheckbox, NIcon, NResult, NAlert} from 'naive-ui'
-import { NetworkCheck24Filled} from "@vicons/fluent"
+import { NetworkCheck24Filled, CloudCheckmark16Filled} from "@vicons/fluent"
 import {Wallet, TimerSharp} from "@vicons/ionicons5"
 import {http, invoke} from "@tauri-apps/api"
 import {ResponseType} from "@tauri-apps/api/http";
 import { useMessage } from 'naive-ui'
+import {enable, disable, isEnabled} from 'tauri-plugin-autostart-api'
 const model = reactive({
   username: "by2006111",
   password: "Aa699008"
@@ -108,6 +109,15 @@ watch(() => checkboxGroupValue.value, (n) => {
   if (option.remember_password) {
     option.password = model.password;
   }
+  isEnabled().then(enabled => {
+    if (option.auto_login && !enabled) {
+      enable()
+    }
+    if (!option.auto_login && enabled) {
+      disable()
+    }
+  })
+
   option.username = model.username;
   invoke("update_option", {payload: option})
 })
@@ -136,12 +146,14 @@ onMounted(() => {
     result = JSON.parse(result)
     has_login.value = result.res !== "not_online_error";
     status.data = result
+    console.log({result})
+    fetchOption().then(() => {
+      if (option.auto_login && !has_login.value) {
+        login()
+      }
+    })
   })
-  fetchOption().then(() => {
-    if (option.auto_login) {
-      login()
-    }
-  })
+
 })
 const fetchOption = () => {
   return invoke("fetch_option").then(c_option => {
@@ -169,7 +181,7 @@ const login = () => {
   if (!model.username || !model.password) {
     message.warning("请填写正确的学号和姓名")
   }
-  invoke("login", {username: model.username, password: model.password}).then(res => {
+  invoke("login", {username: model.username, password: model.password, clientIp: status.data.client_ip ? status.data.client_ip : status.data.online_ip}).then(res => {
     if (res.error === "ok") {
       has_login.value = true
       if (res.ploy_msg) {

@@ -19,4 +19,4 @@
 ## 贡献
 基于[tauri](https://tauri.app/)和[vue3](https://v3.cn.vuejs.org/)以及[naiveui](https://www.naiveui.com/zh-CN/os-theme)。欢迎试用、issue和pr。
 
-
+![Alt](https://repobeats.axiom.co/api/embed/986ec61ac4cfd481d5000ce9d691248720a80aa7.svg "Repobeats analytics image")

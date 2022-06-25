@@ -86,8 +86,8 @@ import {ResponseType} from "@tauri-apps/api/http";
 import { useMessage } from 'naive-ui'
 import {enable, disable, isEnabled} from 'tauri-plugin-autostart-api'
 const model = reactive({
-  username: "by2006111",
-  password: "Aa699008"
+  username: "",
+  password: ""
 })
 const rules = ref([])
 const status = reactive({
@@ -96,7 +96,6 @@ const status = reactive({
 })
 const checkboxGroupValue = ref([])
 watch(() => checkboxGroupValue.value, (n) => {
-  console.log(n)
   option.auto_start = n.indexOf("auto_start") > -1
   option.auto_login = n.indexOf("auto_login") > -1
   option.remember_password = n.indexOf("remember_password") > -1
@@ -146,7 +145,6 @@ onMounted(() => {
     result = JSON.parse(result)
     has_login.value = result.res !== "not_online_error";
     status.data = result
-    console.log({result})
     fetchOption().then(() => {
       if (option.auto_login && !has_login.value) {
         login()
